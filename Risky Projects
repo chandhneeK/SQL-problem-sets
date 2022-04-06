@@ -1,0 +1,11 @@
+#https://platform.stratascratch.com/coding/10304-risky-projects?python=
+select p.id, p.title, p.budget,p.end_date - p.start_date as duration,
+ceiling(sum(s.salary) *(p.end_date - p.start_date)/365) as expense
+from linkedin_projects p
+join linkedin_emp_projects e
+on p.id = e.project_id
+join linkedin_employees s
+on e.emp_id = s.id
+group by 1,2,3,4
+having ceiling(sum(s.salary)*(p.end_date - p.start_date)/365) > p.budget
+order by p.id; 
