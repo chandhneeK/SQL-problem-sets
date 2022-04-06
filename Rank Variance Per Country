@@ -1,0 +1,18 @@
+#https://platform.stratascratch.com/coding/2007-rank-variance-per-country?python=
+
+with rank1 as (select country, sum(number_of_comments), dense_rank() over(order by sum(number_of_comments) desc) as jan_rank from fb_active_users a
+join fb_comments_count b
+on a.user_id = b.user_id
+AND to_char(b.created_at, 'MM-YYYY') = '01-2020'
+group by 1),
+rank2 as (select country, sum(number_of_comments), dense_rank() over(order by sum(number_of_comments) desc) as dec_rank from fb_active_users a
+join fb_comments_count b
+on a.user_id = b.user_id
+AND to_char(b.created_at, 'MM-YYYY') = '12-2019'
+group by 1)
+
+select x.country
+from rank1 x
+full outer join rank2 y
+on x.country = y.country
+where jan_rank<dec_rank;
