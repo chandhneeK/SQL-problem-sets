@@ -1,0 +1,23 @@
+#https://platform.stratascratch.com/coding/9632-host-popularity-rental-prices?python=
+
+with hosts as
+(select 
+    concat (price, room_type,host_since,zipcode,number_of_reviews) as host_id, number_of_reviews, price
+from airbnb_host_searches
+group by 1,2,3),
+
+popularity as (
+select case
+        when number_of_reviews = 0 then 'New'
+        when number_of_reviews between 1 and 5 then 'Rising'
+        when number_of_reviews between 6 and 15 then 'Trending up'
+        when number_of_reviews between 16 and 40 then 'Popular'
+        when number_of_reviews > 40 then 'Hot'
+        end as host_popularity, price
+from hosts )
+
+select host_popularity, min(price), avg(price), max(price)
+from popularity
+group by 1;
+        
+        
