@@ -1,0 +1,13 @@
+#https://platform.stratascratch.com/coding/10313-naive-forecasting?python=
+
+with monthly as (select extract(month from request_date) as month, sum(distance_to_travel)::float/sum(monetary_cost) as distance_per_dollar 
+from uber_request_logs
+group by 1),
+
+forecast as (select month, distance_per_dollar, lag(distance_per_dollar,1) over(order by month asc) as forecasted
+from monthly
+order by 1),
+
+error as (select case when forecasted is not null then power(distance_per_dollar-lag(distance_per_dollar,1) over(order by month asc),2) end as power
+from forecast)
+select round(sqrt(avg(power))::numeric,2) from error;
