@@ -1,0 +1,9 @@
+#https://platform.stratascratch.com/coding/10314-revenue-over-time?python=
+
+with monthly_revenue as (select to_char(created_at, 'YYYY-MM') as month, sum(purchase_amt) as total_revenue from amazon_purchases
+where purchase_amt>0
+group by 1)
+
+select month ,avg(total_revenue) over(order by month rows BETWEEN 2 PRECEDING AND CURRENT ROW )
+from monthly_revenue
+order by month asc;
