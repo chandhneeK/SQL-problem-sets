@@ -1,0 +1,9 @@
+#https://platform.stratascratch.com/coding/10302-distance-per-dollar?python=
+
+with monthly_avg as (select to_char(request_date, 'YYYY-MM') as year_month, avg(distance_to_travel/monetary_cost) as average from uber_request_logs
+group by 1)
+
+select a.year_month, avg(round(abs(b.distance_to_travel/b.monetary_cost - a.average)::numeric,2)) as dist_per_dollar from monthly_avg a
+ join uber_request_logs b
+ on a.year_month = to_char(request_date, 'YYYY-MM')
+group by 1 ;
