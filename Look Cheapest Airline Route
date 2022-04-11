@@ -1,0 +1,51 @@
+
+#https://platform.stratascratch.com/coding/2008-the-cheapest-airline-connection?python=
+
+with locations as 
+(select distinct origin as location from da_flights union all select distinct destination as location from da_flights), 
+
+da as (
+select distinct a.location as origin, b.location as destination from locations a, locations b
+),
+
+one_stop as (select a.origin, a.destination, c.origin as f1_origin, c.destination as f2_destination, b.origin as f2_origin, b.destination as f2_destination, b.cost +c.cost as cost 
+from 
+da a
+join da_flights b
+on b.origin <> a.origin
+and a.destination = b.destination
+join da_flights c
+on a.origin = c.origin
+and c.destination = b.origin),
+
+two_stops as (
+select
+a.origin, a.destination,
+b.origin as f1_origin, b.destination as f1_destination, 
+c.origin as f2_origin, c.destination as f2_destination,
+d.origin as f3_origin, d.destination as f3_destination,
+b.cost + c.cost + d.cost as cost
+from da a
+join da_flights b
+on a.origin = b.origin
+and a.destination <> b. destination
+join da_flights d
+on a.destination = d.destination
+and a.origin <> d.origin
+join da_flights c 
+on b.destination = c.origin
+and c.destination = d.origin
+and c.origin <> a.origin
+and c.destination <> a.destination
+),
+
+main as (
+select origin, destination, cost from one_stop
+union all
+select origin , destination, cost from two_stops 
+union all
+select origin , destination, cost from da_flights)
+
+select origin, destination, min(cost)
+from main
+group by 1, 2;
