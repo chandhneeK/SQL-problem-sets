@@ -1,0 +1,25 @@
+#https://platform.stratascratch.com/coding/2105-videos-removed-on-latest-date?code_type=1
+
+with videos as (
+select r.reviewed_date, count(distinct u.video_id) as removed
+from flag_review r
+join user_flags u
+on u.flag_id = r.flag_id
+where reviewed_by_yt = 'TRUE'
+AND reviewed_outcome = 'REMOVED'
+group by 1
+),
+
+users as (select f.user_firstname, f.user_lastname, max(r.reviewed_date) as date 
+from user_flags f
+join flag_review r
+on f.flag_id = r.flag_id
+and r.reviewed_by_yt = 'TRUE'
+group by 1,2
+having max(r.reviewed_date) is not null)
+
+select u.*, coalesce(v.removed,0)
+from users u
+left join videos v
+on u.date = v.reviewed_date
+
