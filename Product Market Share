@@ -1,0 +1,19 @@
+https://platform.stratascratch.com/coding/2112-product-market-share?code_type=1
+
+with main as (select ct.territory_id,p.prod_brand, count(p.prod_sku_id) as p_sold
+from fct_customer_sales cs
+join map_customer_territory ct
+on cs.cust_id = ct.cust_id
+join dim_product p
+on cs.prod_sku_id = p.prod_sku_id
+where extract(month from cs.order_date) in (10,11,12)
+AND extract(year from cs.order_date) = '2021'
+group by 1,2
+having count(p.prod_sku_id)>0),
+
+total_p as (select territory_id, sum(p_sold) as total from main group by 1)
+
+select m.territory_id, m.prod_brand, p_sold::float/ t.total*100 as product_share
+from main m
+join total_p t
+on m.territory_id = t.territory_id;
