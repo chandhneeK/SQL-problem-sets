@@ -1,0 +1,14 @@
+#https://platform.stratascratch.com/coding/2111-sales-growth-per-territory?code_type=1
+
+with main as (select extract(quarter from cs.order_date) as quarter, c.territory_id, sum(cs.order_value) as total_sales
+from fct_customer_sales cs
+join map_customer_territory c
+on cs.cust_id = c.cust_id
+where cs.order_date between '2021-07-01' and '2021-12-31'
+group by 1,2)
+
+select a.territory_id, (b.total_sales - a.total_sales)::float/a.total_sales*100 as sales_growth
+from main a
+join main b
+on a.territory_id = b.territory_id
+and a.quarter = 3 and b.quarter = 4;
