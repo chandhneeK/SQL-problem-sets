@@ -1,0 +1,15 @@
+#https://platform.stratascratch.com/coding/2110-salary-less-than-twice-the-average?code_type=1
+
+with salaries as (select m.manager_empl_id as mgr_id, avg(e.salary) as avg_salary 
+from map_employee_hierarchy m 
+join dim_employee e
+on e.empl_id = m.empl_id
+group by 1)
+
+select distinct m.manager_empl_id, e.salary, s.avg_salary
+from map_employee_hierarchy m
+join dim_employee e
+on m.manager_empl_id = e.empl_id
+join salaries s
+on s.mgr_id = m.manager_empl_id
+where e.salary <= 2*s.avg_salary;
